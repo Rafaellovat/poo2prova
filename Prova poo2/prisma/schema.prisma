@@ -12,8 +12,10 @@ datasource db {
 
 model Usuario {
   idUsuario    String   @id @default(uuid())
+
   nome         String
-  email        String
+  email        String   @unique
+
   lance  Lance?         @relation("comprador")
   leilao Leilao?        @relation("dono")
 
@@ -21,31 +23,33 @@ model Usuario {
   updated_at   DateTime @default(now())
 }
 
+model Leilao {
+  idLeilao     String   @id @default(uuid())
+
+  produto      String
+  preco        Float
+  datalimite   DateTime
+
+  dono         Usuario  @relation("dono", fields: [donoId], references: [idUsuario])
+  donoId       String   @unique
+
+  listaDeLances Lance[] @relation("listaLances")
+
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+}
+
 model Lance {
   idLance     String   @id @default(uuid())
-  valor       Float
 
-  comprador Usuario    @relation("comprador", fields: [compradorId], references: [idUsuario])
+  valor       Float
+  comprador   Usuario  @relation("comprador", fields: [compradorId], references: [idUsuario])
   compradorId String   @unique
 
-  leilao    Leilao     @relation("lista", fields: [leilaoId], references: [idLeilao])
+  leilao      Leilao   @relation("listaLances", fields: [leilaoId], references: [idLeilao])
   leilaoId    String
 
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
 }
 
-model Leilao {
-  idLeilao     String   @id @default(uuid())
-  produto      String
-  preco        Float
-  datalimite   DateTime
-
-  dono          Usuario @relation("dono", fields: [donoId], references: [idUsuario])
-  donoId       String   @unique
-
-  listaDeLances Lance[] @relation("lista")
-
-  created_at   DateTime @default(now())
-  updated_at   DateTime @default(now())
-}
